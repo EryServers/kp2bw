@@ -683,11 +683,13 @@ class Converter:
                         if missing:
                             updated_item = copy.copy(existing)
                             updated_item["collectionIds"] = existing_colls + missing
-                            bw.update_item(existing["id"], updated_item)
-                            # Keep cache fresh so a second KeePass entry with
-                            # the same (folder, name) doesn't recompute stale
-                            # existing_colls and issue a redundant PUT.
-                            bw.update_dedup_entry(folder, bw_item["name"], updated_item)
+                            fresh = bw.update_item(existing["id"], updated_item)
+                            # Cache the server response (with the fresh
+                            # ``revisionDate``) so a second KeePass entry
+                            # targeting the same cipher doesn't PUT with a
+                            # stale revision and trigger HTTP 400 "out of
+                            # date".
+                            bw.update_dedup_entry(folder, bw_item["name"], fresh)
                             logger.log(
                                 VERBOSE,
                                 f"-- Entry {bw_item['name']!r}: added to "

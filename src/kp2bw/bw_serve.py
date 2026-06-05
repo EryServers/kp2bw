@@ -11,7 +11,7 @@ import subprocess
 import time
 from collections.abc import Callable, Mapping
 from types import FrameType, TracebackType
-from typing import Any, Self
+from typing import Any, Self, cast
 
 import httpx
 
@@ -407,14 +407,17 @@ class BitwardenServeClient:
         logger.log(VERBOSE, f"Created item {item.get('name', '?')!r} → {item_id}")
         return item_id
 
-    def update_item(self, item_id: str, item: BwItemResponse) -> None:
+    def update_item(self, item_id: str, item: BwItemResponse) -> BwItemResponse:
         """Replace an existing vault item via ``PUT /object/item/{id}``.
 
         The API requires the full object in the request body — partial updates
-        are not supported.
+        are not supported.  Returns the server's response so callers can
+        refresh caches with the new ``revisionDate`` (stale revisions cause
+        subsequent PUTs to fail with HTTP 400 "out of date").
         """
-        self._request("PUT", f"/object/item/{item_id}", json_body=item)
+        data = self._request("PUT", f"/object/item/{item_id}", json_body=item)
         logger.log(VERBOSE, f"Updated item {item.get('name', '?')!r} ({item_id})")
+        return cast(BwItemResponse, data)
 
     def create_items_batch(
         self,
