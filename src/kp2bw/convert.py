@@ -350,6 +350,17 @@ class Converter:
         if self._migrate_metadata:
             custom_properties.update(self._build_metadata_fields(entry))
 
+        # If the KeePass URL field looks like an e-mail address and there is no
+        # existing "Email" custom property, promote it to an Email custom field.
+        url_value: str = entry.url if entry.url else ""
+        if (
+            "@" in url_value
+            and "://" not in url_value
+            and "Email" not in custom_properties
+        ):
+            custom_properties["Email"] = (url_value, 0)
+            url_value = ""  # don't also store it as a URL
+
         # Build FIDO2/passkey credentials from KeePassXC attributes
         fido2_credentials = self._build_fido2_credentials(entry)
         if fido2_credentials:
@@ -369,7 +380,7 @@ class Converter:
         bw_item_object = self._create_bw_python_object(
             title=title,
             notes=notes,
-            url=entry.url if entry.url else "",
+            url=url_value,
             totp=otp_result.totp or "",
             username=entry.username if entry.username else "",
             password=entry.password if entry.password else "",
