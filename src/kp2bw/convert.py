@@ -101,6 +101,7 @@ class Converter:
         skip_expired: bool = False,
         include_recyclebin: bool = False,
         migrate_metadata: bool = True,
+        sub_collections: bool = False,
     ) -> None:
         """Initialise the converter with KeePass source and Bitwarden target settings."""
         self._keepass_file_path = keepass_file_path
@@ -115,6 +116,7 @@ class Converter:
         self._skip_expired = skip_expired
         self._include_recyclebin = include_recyclebin
         self._migrate_metadata = migrate_metadata
+        self._sub_collections = sub_collections
         self._kp_ref_entries = []
         self._entries = {}
 
@@ -534,14 +536,19 @@ class Converter:
         self,
         bw: BitwardenServeClient,
         bw_item: BwItemCreate,
+        folder: str | None,
         firstlevel: str | None,
     ) -> str | None:
         """Resolve and set collection ID on *bw_item*."""
         collection_id: str | None = None
         if self._bitwarden_coll_id == "auto":
-            if firstlevel:
-                logger.log(VERBOSE, f"Searching Collection {firstlevel}")
-                collection_id = bw.create_org_collection(firstlevel)
+            # --sub-collections: use the full folder path as the collection name
+            # (creates a collection per KeePass sub-folder).
+            # Default: use only the top-level folder (original behaviour).
+            coll_name = folder if self._sub_collections else firstlevel
+            if coll_name:
+                logger.log(VERBOSE, f"Searching Collection {coll_name}")
+                collection_id = bw.create_org_collection(coll_name)
         elif self._bitwarden_coll_id:
             collection_id = self._bitwarden_coll_id
 
@@ -613,7 +620,7 @@ class Converter:
                 )
 
                 # Resolve collection (mutates bw_item)
-                self._resolve_collection(bw, bw_item, firstlevel)
+                self._resolve_collection(bw, bw_item, folder, firstlevel)
 
                 # Dedup: skip items already in the vault.
                 #
