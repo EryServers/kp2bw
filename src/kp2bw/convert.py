@@ -1038,6 +1038,14 @@ class Converter:
                 # Resolve collection (mutates bw_item)
                 self._resolve_collection(bw, bw_item, folder, firstlevel)
 
+                # In --sub-collections mode the collection hierarchy already
+                # mirrors the KeePass folder tree, so personal folders are just
+                # redundant noise for the importing user.  Drop the folder name
+                # so none are created and ``folderId`` stays unset; dedup then
+                # keys on the no-folder bucket.
+                if self._sub_collections:
+                    folder = None
+
                 # An item with this (folder, name) already exists: sync any
                 # KeePass changes onto it (content, collection membership, and
                 # missing attachments) instead of blindly skipping it.
