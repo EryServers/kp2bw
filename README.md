@@ -2,7 +2,56 @@
 
 <a href="https://pypi.org/project/kp2bw/"><img src="https://img.shields.io/pypi/v/kp2bw?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMS42OTYgMzAuMDI0Ij48ZyBzdHJva2U9IiNjY2MiIHN0cm9rZS1saW5lam9pbj0iYmV2ZWwiIHN0cm9rZS13aWR0aD0iLjM1NSI%2BPHBhdGggZmlsbD0iI2Y3ZjdmNCIgZD0ibS4xNzggNS45MTIgMTUuNTU1IDUuNjYyTDMxLjUxOSA1LjgzIDE1Ljk2My4xNjd6Ii8%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjczMyAxMS41NzR2MTguMjgzbDE1Ljc4Ni01Ljc0NlY1LjgzeiIvPjxwYXRoIGZpbGw9IiNlZmVlZWEiIGQ9Im0uMTc4IDUuOTEyIDE1LjU1NSA1LjY2MnYxOC4yODNMLjE3OCAyNC4xOTV6Ii8%2BPC9nPjwvc3ZnPg%3D%3D&color=3775A9" alt="PyPI"></a>
 
+> Fork of [kjanat/kp2bw], adding features I need, which is a:
 > Fork of [jampe/kp2bw], modernized.
+
+## This branch — additional enhancements
+
+This branch adds three features on top of upstream:
+
+- **TOTP fallback from `TimeOtp-Secret-Base32`** -- if a KeePass entry has no
+  standard OTP value, the KeePassXC `TimeOtp-Secret-Base32` custom property is
+  used to populate the Bitwarden *Authenticator key* field automatically.
+- **Sub-collections (`--sub-collections`)** -- with `-c auto -o <org>`, the full
+  KeePass folder path (e.g. `Familie/Network`) is mapped to a Bitwarden org
+  collection instead of only the top-level folder. Default is off.
+- **Email-from-URL** -- if a KeePass entry's URL field contains an e-mail address
+  (a `@` but no `://`) and no `Email` custom field already exists, the value is
+  stored as an `Email` custom field instead of a URL.
+
+### Running this branch with Python 3.14+ and `venv`
+
+`kp2bw` requires Python 3.14+. To run this branch without `uv`:
+
+```bash
+# 1. Clone this fork and check out the branch
+git clone https://github.com/kjanat/kp2bw
+cd kp2bw
+git checkout feature/combined-enhancements
+
+# 2. Create and activate a virtual environment (Python 3.14+)
+python -m venv .venv
+
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+# Windows (cmd)
+.venv\Scripts\activate.bat
+# Linux / macOS
+source .venv/bin/activate
+
+# 3. Install this checkout (editable)
+python -m pip install -e .
+
+# 4. Run it (bw CLI must be installed and logged in once)
+kp2bw passwords.kdbx -o <org-id> -c auto --sub-collections
+```
+
+When you're done you can deactivate and remove the environment:
+
+```bash
+deactivate
+# then delete the .venv folder
+```
 
 Migrates KeePass databases to Bitwarden via the `bw` CLI, with advantages over
 the built-in Bitwarden importer:
@@ -89,6 +138,7 @@ kp2bw [-h] [-V] [-k PASSWORD] [-K FILE] [-b PASSWORD] [-o ID]
 | `--skip-expired`                       | Skip entries that have expired in KeePass                      | `KP2BW_SKIP_EXPIRED`                  |
 | `--include-recycle-bin`                | Include Recycle Bin entries (excluded by default)              | `KP2BW_INCLUDE_RECYCLE_BIN`           |
 | `--metadata` / `--no-metadata`         | Toggle KeePass metadata as custom fields (default: on)         | `KP2BW_MIGRATE_METADATA`              |
+| `--sub-collections`                    | Map full KeePass folder path to org collections (with `-c auto`)| `KP2BW_SUB_COLLECTIONS`              |
 | `-y, --yes`                            | Skip the Bitwarden CLI setup confirmation prompt               | `KP2BW_YES`                           |
 | `-v, --verbose`                        | Verbose output                                                 | `KP2BW_VERBOSE`                       |
 | `-d, --debug`                          | Debug output — includes third-party library logs               | `KP2BW_DEBUG`                         |
