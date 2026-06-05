@@ -5,6 +5,7 @@
 </a>
 
 > Fork of [kjanat/kp2bw], adding features I need, which is a:
+
 > Fork of [jampe/kp2bw], modernized.
 
 ## This branch — additional enhancements
@@ -12,10 +13,10 @@
 This branch adds three features on top of upstream:
 
 - **TOTP fallback from `TimeOtp-Secret-Base32`** -- if a KeePass entry has no
-  standard OTP value, the KeePassXC `TimeOtp-Secret-Base32` custom property is
+  standard OTP value, the KeePass `TimeOtp-Secret-Base32` custom property is
   used to populate the Bitwarden *Authenticator key* field automatically.
 - **Sub-collections (`--sub-collections`)** -- with `-c auto -o <org>`, the full
-  KeePass folder path (e.g. `Familie/Network`) is mapped to a Bitwarden org
+  KeePass folder path (e.g. `Root-Name/SubFolder1/SubFolder2`) is mapped to a Bitwarden org
   collection instead of only the top-level folder. Default is off.
 - **Email-from-URL** -- if a KeePass entry's URL field contains an e-mail address
   (a `@` but no `://`) and no `Email` custom field already exists, the value is
@@ -27,7 +28,7 @@ This branch adds three features on top of upstream:
 
 ```bash
 # 1. Clone this fork and check out the branch
-git clone https://github.com/kjanat/kp2bw
+git clone https://github.com/EryServers/kp2bw
 cd kp2bw
 git checkout feature/combined-enhancements
 
