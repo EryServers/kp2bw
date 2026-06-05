@@ -117,6 +117,7 @@ class Converter:
         self._include_recyclebin = include_recyclebin
         self._migrate_metadata = migrate_metadata
         self._sub_collections = sub_collections
+        self._root_group_name: str | None = None
         self._kp_ref_entries = []
         self._entries = {}
 
@@ -418,6 +419,14 @@ class Converter:
         self._kp_ref_entries = []
         self._entries = {}
 
+        # Capture the KeePass root group name (e.g. the database name). Used to
+        # prefix org-collection names in --sub-collections mode so the KeePass
+        # hierarchy nests under it (pykeepass' group.path excludes the root).
+        root_group: Group | None = kp.root_group
+        self._root_group_name = (
+            root_group.name if root_group is not None else None
+        )
+
         # Identify recycle bin group for filtering
         recyclebin_group: Group | None = kp.recyclebin_group
 
@@ -554,9 +563,13 @@ class Converter:
         collection_id: str | None = None
         if self._bitwarden_coll_id == "auto":
             # --sub-collections: use the full folder path as the collection name
-            # (creates a collection per KeePass sub-folder).
+            # (creates a collection per KeePass sub-folder). The KeePass root
+            # group name is prepended so collections nest under it in Bitwarden
+            # (Bitwarden treats '/' in collection names as a nesting separator).
             # Default: use only the top-level folder (original behaviour).
             coll_name = folder if self._sub_collections else firstlevel
+            if coll_name and self._sub_collections and self._root_group_name:
+                coll_name = f"{self._root_group_name}/{coll_name}"
             if coll_name:
                 logger.log(VERBOSE, f"Searching Collection {coll_name}")
                 collection_id = bw.create_org_collection(coll_name)
