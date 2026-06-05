@@ -172,6 +172,17 @@ def _argparser() -> MyArgParser:
         default=None,
     )
     parser.add_argument(
+        "--sub-collections",
+        dest="sub_collections",
+        help=(
+            "Map the full KeePass folder path to Bitwarden org collections "
+            "instead of only the top-level folder. Requires -c auto and -o. "
+            "(env: KP2BW_SUB_COLLECTIONS)"
+        ),
+        action=BooleanOptionalAction,
+        default=None,
+    )
+    parser.add_argument(
         "-y",
         "--yes",
         dest="skip_confirm",
@@ -267,6 +278,14 @@ def main() -> None:
                 env_var="KP2BW_UPDATE",
             )
         )
+        sub_collections = (
+            args.sub_collections
+            if args.sub_collections is not None
+            else _parse_bool_env(
+                os.environ.get("KP2BW_SUB_COLLECTIONS"),
+                env_var="KP2BW_SUB_COLLECTIONS",
+            )
+        )
         skip_confirm = (
             args.skip_confirm
             if args.skip_confirm is not None
@@ -309,6 +328,7 @@ def main() -> None:
     include_recyclebin = include_recyclebin if include_recyclebin is not None else False
     migrate_metadata = migrate_metadata if migrate_metadata is not None else True
     update_existing = update_existing if update_existing is not None else True
+    sub_collections = sub_collections if sub_collections is not None else False
     skip_confirm = skip_confirm if skip_confirm is not None else False
     verbose = verbose if verbose is not None else False
     debug = debug if debug is not None else False
@@ -386,6 +406,7 @@ def main() -> None:
         include_recyclebin=include_recyclebin,
         migrate_metadata=migrate_metadata,
         update_existing=update_existing,
+        sub_collections=sub_collections,
     )
     try:
         failures = c.convert()
