@@ -310,8 +310,10 @@ class BitwardenServeClient:
             params=params,
         )
         if resp.status_code >= 400:
+            body_text = sanitize_cli_output(resp.text) if resp.text else ""
             raise BitwardenClientError(
                 f"bw serve returned HTTP {resp.status_code} for {method} {path}"
+                f"{f': {body_text}' if body_text else ''}"
             )
 
         try:
@@ -547,7 +549,9 @@ class BitwardenServeClient:
             "/object/org-collection",
             params={"organizationId": self._org_id},
             json_body={
+                "organizationId": self._org_id,
                 "name": name,
+                "externalId": None,
                 "groups": [],
             },
         )
