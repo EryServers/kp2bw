@@ -1086,26 +1086,10 @@ class Converter:
                                 pending_deletes.append((item_id, old_id, fname))
                     if unique_atts:
                         existing_uploads.append((item_id, unique_atts))
-                        else:
-                            logger.log(
-                                VERBOSE,
-                                f"-- Entry {bw_item['name']!r} already in "
-                                f"folder {folder!r}, skipping",
-                            )
-                            n_skipped += 1
->>>>>>> 5892ff2 (fix: refresh dedup cache with PUT response to avoid stale revisionDate)
                     progress.advance(task1)
                     continue
 
                 impo
-                def _on_created() -> None:
-                    nonlocal n_created
-                    n_created += 1
-                    progress.advance(task2)
-
-                key_to_id = bw.create_items_batch(
-                    import_entries, on_item_created=_on_created
-                )
             else:
                 key_to_id = {}
 
