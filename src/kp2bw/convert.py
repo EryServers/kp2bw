@@ -1097,15 +1097,7 @@ class Converter:
                     progress.advance(task1)
                     continue
 
-                import_entries[key] = (folder, bw_item)
-                if attachments:
-                    attachment_map[key] = attachments
-                progress.advance(task1)
-
-            # --- Phase 2: Create items via bw serve HTTP API ----------------
-            if import_entries:
-                task2 = progress.add_task("Creating items", total=len(import_entries))
-
+                impo
                 def _on_created() -> None:
                     nonlocal n_created
                     n_created += 1
