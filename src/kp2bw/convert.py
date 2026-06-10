@@ -1097,14 +1097,6 @@ class Converter:
                                 pending_deletes.append((item_id, old_id, fname))
                     if unique_atts:
                         existing_uploads.append((item_id, unique_atts))
-                        else:
-                            logger.log(
-                                VERBOSE,
-                                f"-- Entry {bw_item['name']!r} already in "
-                                f"folder {folder!r}, skipping",
-                            )
-                            n_skipped += 1
->>>>>>> 5892ff2 (fix: refresh dedup cache with PUT response to avoid stale revisionDate)
                     progress.advance(task1)
                     continue
 
